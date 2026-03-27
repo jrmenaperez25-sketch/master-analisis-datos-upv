@@ -35,7 +35,7 @@ Análisis y predicción de series temporales aplicado a datos reales de turismo 
 
 Aplicación de técnicas de Diseño de Experimentos al análisis del vuelo de autogiros. Estudio de factores que influyen en la estabilidad y distancia de vuelo mediante diseños factoriales.
 
-**Tecnologías:** R / Minitab
+**Tecnologías:** Statgraphics
 
 ---
 
