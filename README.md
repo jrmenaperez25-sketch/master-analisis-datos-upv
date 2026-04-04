@@ -1,54 +1,39 @@
-# Máster en Análisis de Datos — Universidad Politécnica de Valencia (UPV)
+# Proyectos Academicos
 
-Repositorio con los proyectos y trabajos académicos del **Máster en Análisis de Datos** de la UPV, organizados por asignatura.
+Repositorio personal con proyectos organizados por bloque academico.
 
----
+## Master en Analisis de Datos
 
-## Proyectos por asignatura
+### [Analisis Multivariante](./Analisis-Multivariante/)
 
-### [Análisis y Monitorización Multivariante](./Analisis-y-Monitorizacion-Multivariante/)
+Trabajo de analisis multivariante aplicado a datos de seguros medicos.
 
-Análisis estadístico multivariante aplicado a datos de seguros médicos. El trabajo aborda la reducción de dimensionalidad y la clasificación no supervisada mediante:
+### [Tecnicas de Prevision](./Tecnicas-de-Prevision/)
 
-- **PCA** (Análisis de Componentes Principales) con e sin regresión
-- **LDA** (Análisis Discriminante Lineal)
-- **MCA** (Análisis de Correspondencias Múltiples) con y sin clustering
+Modelizacion y prediccion de series temporales con datos de turismo.
 
-**Tecnologías:** Python, scikit-learn, pandas, matplotlib, Jupyter Notebook
+### [Diseno de Experimentos](./Diseno-de-Experimentos/)
 
----
+Trabajo de diseno de experimentos aplicado al vuelo de autogiros.
 
-### [Técnicas de Previsión](./Tecnicas-de-Prevision/)
+### [Estadistica con R](./Estadistica-con-R/)
 
-Análisis y predicción de series temporales aplicado a datos reales de turismo en España. Trabajo en colaboración con Marc y Oier.
+Trabajo academico de analisis estadistico avanzado implementado en R.
 
-- Análisis exploratorio y descomposición de series temporales
-- Modelo **ARIMA** y metodología Box-Jenkins
-- Modelización de series pre y post COVID-19 (turistas)
-- Predicciones y validación de modelos
+## Grado en Matematicas
 
-**Tecnologías:** R (forecast, tseries), RMarkdown
+### [grado-matematicas](https://github.com/jrmenaperez25-sketch/grado-matematicas)
 
----
+Repositorio con proyectos y trabajos del grado, incluyendo TFG y optimizacion.
 
-### [Diseño de Experimentos (DOE)](./Diseno-de-Experimentos/)
+## IBM Machine Learning
 
-Aplicación de técnicas de Diseño de Experimentos al análisis del vuelo de autogiros. Estudio de factores que influyen en la estabilidad y distancia de vuelo mediante diseños factoriales.
+### [ibm-aprendizaje-automatico](https://github.com/jrmenaperez25-sketch/ibm-machine-learning)
 
-**Tecnologías:** Statgraphics
+Curso practico organizado por modulos con notebooks de aprendizaje automatico.
 
----
+## Sobre el master
 
-### [Estadística con R](./Estadistica-con-R/)
+Master Universitario en Analisis de Datos - Universitat Politecnica de Valencia (UPV)
 
-Trabajo académico de análisis estadístico avanzado implementado íntegramente en R con RMarkdown, cubriendo técnicas de modelización y análisis exploratorio.
-
-**Tecnologías:** R, RMarkdown
-
----
-
-## Sobre el máster
-
-**Máster Universitario en Análisis de Datos** — Universitat Politècnica de València (UPV)
-
-*Autor: José Ramón Mena Pérez — [GitHub](https://github.com/jrmenaperez25-sketch)*
+Autor: Jose Ramon Mena Perez - [GitHub](https://github.com/jrmenaperez25-sketch)
