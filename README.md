@@ -1,6 +1,6 @@
-# Proyectos Academicos
+# Proyectos Academicos y Practicas
 
-Repositorio personal con proyectos organizados por bloque academico.
+Repositorio personal con proyectos, practicas y materiales organizados por bloque academico.
 
 ## Master en Analisis de Datos
 
@@ -32,8 +32,14 @@ Repositorio con proyectos y trabajos del grado, incluyendo TFG y optimizacion.
 
 Curso practico organizado por modulos con notebooks de aprendizaje automatico.
 
-## Sobre el master
+## IBM Data Visualization
 
-Master Universitario en Analisis de Datos - Universitat Politecnica de Valencia (UPV)
+### [ibm-data-visualization](./ibm-data-visualization/)
+
+Materiales, ejercicios y practicas de visualizacion de datos.
+
+## Sobre el repositorio
+
+Repositorio unificado con trabajos del master, del grado y cursos practicos.
 
 Autor: Jose Ramon Mena Perez - [GitHub](https://github.com/jrmenaperez25-sketch)
