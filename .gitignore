@@ -1,3 +1,4 @@
-grado-matematicas/
-ibm-aprendizaje-automatico/
-Analisis-Multivariante/Vídeo AM.mp4
+master/Analisis-Multivariante/Vídeo AM.mp4
+**/.idea/
+**/__pycache__/
+*.pyc
