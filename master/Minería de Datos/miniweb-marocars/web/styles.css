@@ -200,6 +200,22 @@ input:focus {
   height: 18px;
 }
 
+.luxury-toggle {
+  flex-direction: row;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  border-radius: 18px;
+  border: 1px solid var(--line);
+  background: rgba(255, 250, 244, 0.85);
+}
+
+.luxury-toggle input {
+  width: 18px;
+  height: 18px;
+  margin: 0;
+}
+
 .actions {
   display: flex;
   justify-content: flex-start;

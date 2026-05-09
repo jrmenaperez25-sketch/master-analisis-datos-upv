@@ -16,6 +16,7 @@ const gearboxSelect = document.getElementById("gearbox");
 const fuelSelect = document.getElementById("fuel");
 const conditionSelect = document.getElementById("condition");
 const extrasContainer = document.getElementById("extras-container");
+const isLuxuryCheckbox = document.getElementById("is-luxury");
 const resultsSection = document.getElementById("results");
 const estimatedPriceNode = document.getElementById("estimated-price");
 const firstOwnerLabelNode = document.getElementById("first-owner-label");
@@ -115,6 +116,7 @@ function buildPayload() {
     gearbox: gearboxSelect.value,
     fuel: fuelSelect.value,
     condition: conditionSelect.value,
+    is_luxury: isLuxuryCheckbox.checked,
     extras: readSelectedExtras()
   };
 }
@@ -262,6 +264,7 @@ function predictPrice(payload) {
 function buildWarnings(payload) {
   const warnings = [];
   const luxuryBrands = state.modelData.metadata.luxury_brands;
+  const autoLuxuryBrand = luxuryBrands.includes(payload.brand);
 
   if (payload.mileage_mid > 700000) {
     warnings.push(
@@ -269,8 +272,18 @@ function buildWarnings(payload) {
     );
   }
 
-  if (luxuryBrands.includes(payload.brand)) {
-    warnings.push("Auto de lujo: en este segmento la prediccion puede fallar o ser menos precisa.");
+  if (autoLuxuryBrand && payload.is_luxury) {
+    warnings.push(
+      "Marca detectada como lujo y confirmada por el usuario: en este segmento la prediccion puede ser menos fiable."
+    );
+  } else if (autoLuxuryBrand) {
+    warnings.push(
+      "Marca detectada como posible lujo: la prediccion puede ser menos precisa en este segmento."
+    );
+  } else if (payload.is_luxury) {
+    warnings.push(
+      "Coche marcado manualmente como lujo: la prediccion puede ser menos precisa en este segmento."
+    );
   }
 
   return warnings;
@@ -365,7 +378,7 @@ function downloadPdf() {
   let y = 18;
   pdf.setFont("helvetica", "bold");
   pdf.setFontSize(18);
-  pdf.text("SouqAuto Maroc - Informe de estimacion", 14, y);
+  pdf.text("QimaCar Maroc - Informe de estimacion", 14, y);
 
   y += 10;
   pdf.setFont("helvetica", "normal");
@@ -389,6 +402,8 @@ function downloadPdf() {
   pdf.text(`Combustible: ${p.fuel}`, 14, y);
   y += 8;
   pdf.text(`Estado: ${p.condition}`, 14, y);
+  y += 8;
+  pdf.text(`Marcado como lujo: ${p.is_luxury ? "Si" : "No"}`, 14, y);
   y += 8;
 
   const extrasLines = pdf.splitTextToSize(`Extras: ${extrasText}`, 180);
@@ -417,7 +432,7 @@ function downloadPdf() {
     y += lines.length * 7;
   });
 
-  pdf.save(`souqauto-${p.brand}-${p.model}.pdf`.replace(/\s+/g, "-").toLowerCase());
+  pdf.save(`qimacar-${p.brand}-${p.model}.pdf`.replace(/\s+/g, "-").toLowerCase());
 }
 
 brandInput.addEventListener("input", updateModelsForBrand);
