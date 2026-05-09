@@ -1,9 +1,7 @@
-const API_BASE_URL =
-  window.APP_CONFIG?.API_BASE_URL ||
-  "http://127.0.0.1:8000";
+const MODEL_DATA_URL = "./model-data.json";
 
 const state = {
-  metadata: null,
+  modelData: null,
   lastPrediction: null
 };
 
@@ -67,7 +65,7 @@ function renderExtras(extras) {
 }
 
 function populateBrandModelMap() {
-  const brands = Object.keys(state.metadata.brand_model_map);
+  const brands = Object.keys(state.modelData.metadata.brand_model_map);
   fillSelect(brandSelect, brands, "Selecciona una marca");
   resetSelect(modelSelect, "Selecciona primero una marca");
   modelSelect.disabled = true;
@@ -75,7 +73,7 @@ function populateBrandModelMap() {
 
 function updateModelsForBrand() {
   const selectedBrand = brandSelect.value;
-  const models = state.metadata.brand_model_map[selectedBrand] || [];
+  const models = state.modelData.metadata.brand_model_map[selectedBrand] || [];
   fillSelect(modelSelect, models, "Selecciona un modelo");
   modelSelect.disabled = models.length === 0;
 }
@@ -114,6 +112,163 @@ function buildPayload() {
   };
 }
 
+function sigmoid(value) {
+  return 1 / (1 + Math.exp(-value));
+}
+
+function predictFirstOwnerProbability(payload) {
+  const { coefficient_names: names, coefficients, xlevels } = state.modelData.logistic_model;
+  let linear = 0;
+
+  names.forEach((name, index) => {
+    const coef = Number(coefficients[index]);
+
+    if (name === "(Intercept)") {
+      linear += coef;
+      return;
+    }
+
+    if (name === "Age") {
+      linear += coef * payload.age;
+      return;
+    }
+
+    if (name === "Mileage_mid") {
+      linear += coef * payload.mileage_mid;
+      return;
+    }
+
+    if (name === "Fiscal_Power_num") {
+      linear += coef * payload.fiscal_power_num;
+      return;
+    }
+
+    if (name === "n_extras_total") {
+      linear += coef * payload.extras.length;
+      return;
+    }
+
+    if (name.startsWith("Number.of.Doors")) {
+      const level = name.replace("Number.of.Doors", "");
+      if (payload.number_of_doors === level && level !== xlevels["Number.of.Doors"][0]) {
+        linear += coef;
+      }
+      return;
+    }
+
+    if (name.startsWith("Gearbox")) {
+      const level = name.replace("Gearbox", "");
+      if (payload.gearbox === level && level !== xlevels.Gearbox[0]) {
+        linear += coef;
+      }
+      return;
+    }
+
+    if (name.startsWith("Fuel")) {
+      const level = name.replace("Fuel", "");
+      if (payload.fuel === level && level !== xlevels.Fuel[0]) {
+        linear += coef;
+      }
+      return;
+    }
+
+    if (name.startsWith("Condition")) {
+      const level = name.replace("Condition", "");
+      if (payload.condition === level && level !== xlevels.Condition[0]) {
+        linear += coef;
+      }
+    }
+  });
+
+  return sigmoid(linear);
+}
+
+function goLeftForCategoricalSplit(splitPoint, categoryIndex) {
+  const mask = Math.trunc(splitPoint);
+  return ((mask >> (categoryIndex - 1)) & 1) === 1;
+}
+
+function getFeatureValue(featureName, payload) {
+  if (featureName === "Condition") {
+    return payload.condition;
+  }
+  if (featureName === "Gearbox") {
+    return payload.gearbox;
+  }
+  if (featureName === "Fuel") {
+    return payload.fuel;
+  }
+  if (featureName === "Number.of.Doors") {
+    return payload.number_of_doors;
+  }
+  if (featureName === "Age") {
+    return payload.age;
+  }
+  if (featureName === "Mileage_mid") {
+    return payload.mileage_mid;
+  }
+  if (featureName === "Fiscal_Power_num") {
+    return payload.fiscal_power_num;
+  }
+  if (featureName === "n_extras_total") {
+    return payload.extras.length;
+  }
+  return null;
+}
+
+function predictTree(tree, payload) {
+  const rf = state.modelData.random_forest_model;
+  let nodeIndex = 1;
+
+  while (true) {
+    const i = nodeIndex - 1;
+    const status = Number(tree.status[i]);
+    if (status === -1) {
+      return Number(tree.prediction[i]);
+    }
+
+    const splitVar = Number(tree.split_var[i]);
+    const featureName = rf.feature_order[splitVar - 1];
+    const splitPoint = Number(tree.split_point[i]);
+    const featureValue = getFeatureValue(featureName, payload);
+    const ncat = Number(rf.ncat[splitVar - 1]);
+
+    if (ncat > 1) {
+      const levels = rf.xlevels[featureName];
+      const categoryIndex = levels.indexOf(String(featureValue)) + 1;
+      const takeLeft = goLeftForCategoricalSplit(splitPoint, categoryIndex);
+      nodeIndex = takeLeft ? Number(tree.left[i]) : Number(tree.right[i]);
+      continue;
+    }
+
+    nodeIndex =
+      Number(featureValue) <= splitPoint ? Number(tree.left[i]) : Number(tree.right[i]);
+  }
+}
+
+function predictPrice(payload) {
+  const trees = state.modelData.random_forest_model.trees;
+  const total = trees.reduce((sum, tree) => sum + predictTree(tree, payload), 0);
+  return total / trees.length;
+}
+
+function buildWarnings(payload) {
+  const warnings = [];
+  const luxuryBrands = state.modelData.metadata.luxury_brands;
+
+  if (payload.mileage_mid > 700000) {
+    warnings.push(
+      "Kilometraje anomalo: superar 700000 km puede afectar a la precision de la prediccion."
+    );
+  }
+
+  if (luxuryBrands.includes(payload.brand)) {
+    warnings.push("Auto de lujo: en este segmento la prediccion puede fallar o ser menos precisa.");
+  }
+
+  return warnings;
+}
+
 function formatMad(value) {
   return new Intl.NumberFormat("es-ES", {
     maximumFractionDigits: 0
@@ -139,51 +294,49 @@ function renderResults(prediction) {
   resultsSection.classList.remove("hidden");
 }
 
-async function loadMetadata() {
-  const response = await fetch(`${API_BASE_URL}/metadata`);
+async function loadModelData() {
+  const response = await fetch(MODEL_DATA_URL);
   if (!response.ok) {
-    throw new Error("No se pudieron cargar los metadatos del formulario.");
+    throw new Error("No se pudieron cargar los datos del modelo.");
   }
 
-  state.metadata = await response.json();
+  state.modelData = await response.json();
 
   populateBrandModelMap();
   fillSelect(
     ageSelect,
-    state.metadata.age_values,
+    state.modelData.metadata.age_values,
     "Selecciona antiguedad",
     (value) => `${value} anos`
   );
   fillSelect(
     fiscalPowerSelect,
-    state.metadata.fiscal_power_values,
+    state.modelData.metadata.fiscal_power_values,
     "Selecciona potencia fiscal",
     (value) => `${value} CV`
   );
-  fillSelect(doorsSelect, state.metadata.door_values, "Selecciona puertas");
-  fillSelect(gearboxSelect, state.metadata.gearbox_values, "Selecciona cambio");
-  fillSelect(fuelSelect, state.metadata.fuel_values, "Selecciona combustible");
-  fillSelect(conditionSelect, state.metadata.condition_values, "Selecciona estado");
-  renderExtras(state.metadata.extras);
+  fillSelect(doorsSelect, state.modelData.metadata.door_values, "Selecciona puertas");
+  fillSelect(gearboxSelect, state.modelData.metadata.gearbox_values, "Selecciona cambio");
+  fillSelect(fuelSelect, state.modelData.metadata.fuel_values, "Selecciona combustible");
+  fillSelect(conditionSelect, state.modelData.metadata.condition_values, "Selecciona estado");
+  renderExtras(state.modelData.metadata.extras);
 }
 
-async function submitPrediction(event) {
+function submitPrediction(event) {
   event.preventDefault();
   renderInlineWarnings();
 
   const payload = buildPayload();
-  const response = await fetch(`${API_BASE_URL}/predict`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify(payload)
-  });
-
-  const data = await response.json();
-  if (!response.ok) {
-    throw new Error(data.error || "No se pudo calcular la prediccion.");
-  }
+  const firstOwnerProbability = predictFirstOwnerProbability(payload);
+  const estimatedPrice = predictPrice(payload);
+  const data = {
+    brand: payload.brand,
+    model: payload.model,
+    estimated_price_mad: Math.round(estimatedPrice),
+    first_owner_probability: Number(firstOwnerProbability.toFixed(4)),
+    predicted_first_owner: firstOwnerProbability >= 0.5 ? "Si" : "No",
+    warnings: buildWarnings(payload)
+  };
 
   state.lastPrediction = {
     ...payload,
@@ -266,12 +419,14 @@ function downloadPdf() {
 brandSelect.addEventListener("change", updateModelsForBrand);
 mileageInput.addEventListener("input", renderInlineWarnings);
 form.addEventListener("submit", (event) => {
-  submitPrediction(event).catch((error) => {
+  try {
+    submitPrediction(event);
+  } catch (error) {
     alert(error.message);
-  });
+  }
 });
 downloadPdfButton.addEventListener("click", downloadPdf);
 
-loadMetadata().catch((error) => {
+loadModelData().catch((error) => {
   alert(error.message);
 });

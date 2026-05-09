@@ -1,26 +1,29 @@
 # SouqAuto Maroc
 
-Miniweb en `HTML/CSS/JS` con backend en `R` para:
+Miniweb en `HTML/CSS/JS` preparada para publicarse en `GitHub Pages`.
 
-- estimar `Price` con el `Random Forest`
-- calcular la probabilidad de `First.Owner` con la regresion logistica
-- descargar un PDF con el resultado y los datos introducidos
+La prediccion funciona de forma totalmente estatica en el navegador:
+
+- estima `Price` con el `Random Forest`
+- calcula la probabilidad de `First.Owner` con la regresion logistica
+- descarga un PDF con el resultado y los datos introducidos
 
 ## Estructura
 
 - `api/train_models.R`: reentrena y guarda los modelos en `models/model_bundle.rds`
-- `api/plumber.R`: expone la API con `/metadata`, `/predict` y `/health`
+- `api/export_browser_models.R`: convierte los modelos entrenados a `web/model-data.json`
 - `web/index.html`: interfaz principal
-- `web/config.js`: configuracion local de la URL de la API
-- `web/app.js`: logica del formulario, peticiones y PDF
+- `web/app.js`: logica del formulario y prediccion en cliente
+- `web/model-data.json`: modelo exportado para el navegador
 - `web/styles.css`: estilos
+- `.github/workflows/miniweb-pages.yml`: publicacion automatica en GitHub Pages
 
 ## Dependencias en R
 
 Necesitas tener instalados estos paquetes:
 
 ```r
-install.packages(c("readxl", "caret", "randomForest", "plumber"))
+install.packages(c("readxl", "caret", "randomForest", "jsonlite"))
 ```
 
 ## Paso 1. Datos locales
@@ -36,134 +39,62 @@ No depende del `.Rmd` ni necesita leer el Excel desde fuera de `miniweb-marocars
 Desde la carpeta `miniweb-marocars/api`:
 
 ```powershell
-Rscript train_models.R
+& 'C:\Program Files\R\R-4.5.2\bin\Rscript.exe' train_models.R
 ```
 
-Si `Rscript` no esta en el PATH, puedes abrir R y ejecutar:
+## Paso 3. Exportar los modelos al navegador
 
-```r
-setwd("C:/Users/joser/OneDrive/Desktop/Proyecto Final Minería de Datos/miniweb-marocars/api")
-source("train_models.R")
-```
-
-## Paso 3. Levantar la API
-
-Desde `miniweb-marocars/api`:
+Desde la carpeta `miniweb-marocars/api`:
 
 ```powershell
-Rscript -e "pr <- plumber::plumb('plumber.R'); pr$run(host='127.0.0.1', port=8000)"
+& 'C:\Program Files\R\R-4.5.2\bin\Rscript.exe' export_browser_models.R
 ```
 
-O desde una sesion de R:
+Eso genera:
 
-```r
-setwd("C:/Users/joser/OneDrive/Desktop/Proyecto Final Minería de Datos/miniweb-marocars/api")
-pr <- plumber::plumb("plumber.R")
-pr$run(host = "127.0.0.1", port = 8000)
-```
+- `web/model-data.json`
 
-## Paso 4. Abrir la miniweb
+## Paso 4. Probar la web en local
 
-Abre `web/index.html` en el navegador.
-
-Antes, crea `web/config.js` a partir de `web/config.example.js`.
-
-Si prefieres servirla localmente:
+Desde `miniweb-marocars/web`:
 
 ```powershell
-cd "C:\Users\joser\OneDrive\Desktop\Proyecto Final Minería de Datos\miniweb-marocars\web"
-python -m http.server 5500
+.\serve-local.ps1
 ```
 
-Luego entra en `http://127.0.0.1:5500`.
+Luego abre:
 
-## Para publicarla con enlace
+- `http://127.0.0.1:5500`
 
-GitHub por si solo no basta, porque la prediccion depende de una API en `R`.
+## Publicacion en GitHub Pages
 
-Necesitas desplegar:
-
-- el frontend estatico `web/`
-- la API `plumber` de `api/`
-
-La web ya esta preparada para eso: cuando publiques la API, solo tendras que poner su URL en `web/config.js`.
-
-Ejemplo:
-
-```js
-window.APP_CONFIG = {
-  API_BASE_URL: "https://tu-api-publica.onrender.com"
-};
-```
-
-## Despliegue recomendado
-
-### Backend en Render
-
-El backend ya incluye:
-
-- `Dockerfile`
-- `api/start-api.R`
-
-Pasos en Render:
-
-1. Crea un `Web Service`.
-2. Conecta tu repositorio de GitHub.
-3. Usa estos valores:
-   - `Root Directory`: `miniweb-marocars`
-   - `Language`: `Docker`
-4. Despliega.
-
-Render indica que los `Web Services` deben escuchar en `0.0.0.0` y usar el puerto esperado por la plataforma. En este proyecto eso ya queda resuelto en `start-api.R`, que toma `PORT` y arranca `plumber` sobre `0.0.0.0`.[Render Web Services](https://render.com/docs/web-services) [Render Docker](https://render.com/docs/docker)
-
-Cuando el servicio quede desplegado, prueba:
-
-- `https://tu-servicio.onrender.com/health`
-- `https://tu-servicio.onrender.com/metadata`
-
-### Frontend en GitHub Pages
-
-El repo ya incluye un workflow:
+El repo ya incluye el workflow:
 
 - `.github/workflows/miniweb-pages.yml`
 
-Pasos en GitHub:
+Pasos:
 
-1. Ve a `Settings -> Pages`.
-2. En `Source`, selecciona `GitHub Actions`.
-3. Haz `push` al repo.
+1. Haz `git add .`
+2. Haz `git commit -m "Publish SouqAuto Maroc static site"`
+3. Haz `git push`
+4. En GitHub entra en `Settings -> Pages`
+5. En `Source` selecciona `GitHub Actions`
 
-GitHub Pages publica sitios estaticos directamente desde los archivos del repositorio mediante un flujo de build/deploy, asi que encaja bien con `web/`.[GitHub Pages docs](https://docs.github.com/pages/getting-started-with-github-pages/what-is-github-pages)
+GitHub Pages publica sitios estaticos directamente desde el repositorio, asi que esta version encaja bien sin backend adicional.[GitHub Pages docs](https://docs.github.com/en/pages/getting-started-with-github-pages/what-is-github-pages)
 
-## Orden recomendado de publicacion
+## Flujo cuando cambies los modelos
 
-1. Desplegar primero la API en Render.
-2. Copiar la URL publica de Render.
-3. Cambiar `web/config.js` para que apunte a esa URL.
-4. Hacer `git push`.
-5. Dejar que GitHub Pages publique la web.
+Si retocas el entrenamiento:
 
-## Nota sobre `config.js`
+1. Ejecuta `train_models.R`
+2. Ejecuta `export_browser_models.R`
+3. Haz `git add`, `git commit` y `git push`
+4. GitHub Pages publicara la nueva version
 
-Para local:
-
-```js
-window.APP_CONFIG = {
-  API_BASE_URL: "http://127.0.0.1:8000"
-};
-```
-
-Para produccion:
-
-```js
-window.APP_CONFIG = {
-  API_BASE_URL: "https://tu-servicio.onrender.com"
-};
-```
-
-## Notas del comportamiento
+## Notas
 
 - `Brand` y `Model` se piden para mejorar la experiencia y para incluirlos en el PDF, pero no entran en los modelos.
 - `Mileage` es el unico campo libre.
 - Si el kilometraje supera `700000`, la web muestra un aviso de anomalia.
 - Si la marca pertenece al segmento de lujo, la web muestra un aviso de menor fiabilidad.
+- `model-data.json` pesa bastante porque incluye los 250 arboles del `Random Forest`.
