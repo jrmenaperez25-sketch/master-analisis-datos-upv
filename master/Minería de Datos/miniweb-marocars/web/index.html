@@ -28,12 +28,28 @@
         <form id="car-form" class="form-grid">
           <label>
             Marca
-            <select id="brand" name="brand" required></select>
+            <input
+              id="brand"
+              name="brand"
+              type="text"
+              list="brand-suggestions"
+              placeholder="Ej. Audi"
+              required
+            />
+            <datalist id="brand-suggestions"></datalist>
           </label>
 
           <label>
             Modelo
-            <select id="model" name="model" required disabled></select>
+            <input
+              id="model"
+              name="model"
+              type="text"
+              list="model-suggestions"
+              placeholder="Ej. A3"
+              required
+            />
+            <datalist id="model-suggestions"></datalist>
           </label>
 
           <label>
@@ -115,6 +131,7 @@
       </section>
     </main>
 
+    <script src="./model-data.js"></script>
     <script src="./app.js"></script>
   </body>
 </html>

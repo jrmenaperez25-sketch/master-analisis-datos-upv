@@ -1,13 +1,13 @@
-const MODEL_DATA_URL = "./model-data.json";
-
 const state = {
-  modelData: null,
+  modelData: window.MODEL_DATA || null,
   lastPrediction: null
 };
 
 const form = document.getElementById("car-form");
-const brandSelect = document.getElementById("brand");
-const modelSelect = document.getElementById("model");
+const brandInput = document.getElementById("brand");
+const modelInput = document.getElementById("model");
+const brandSuggestions = document.getElementById("brand-suggestions");
+const modelSuggestions = document.getElementById("model-suggestions");
 const ageSelect = document.getElementById("age");
 const mileageInput = document.getElementById("mileage");
 const fiscalPowerSelect = document.getElementById("fiscal-power");
@@ -64,18 +64,25 @@ function renderExtras(extras) {
   });
 }
 
+function fillDatalist(listNode, values) {
+  listNode.innerHTML = "";
+  values.forEach((value) => {
+    const option = document.createElement("option");
+    option.value = value;
+    listNode.appendChild(option);
+  });
+}
+
 function populateBrandModelMap() {
   const brands = Object.keys(state.modelData.metadata.brand_model_map);
-  fillSelect(brandSelect, brands, "Selecciona una marca");
-  resetSelect(modelSelect, "Selecciona primero una marca");
-  modelSelect.disabled = true;
+  fillDatalist(brandSuggestions, brands);
+  fillDatalist(modelSuggestions, []);
 }
 
 function updateModelsForBrand() {
-  const selectedBrand = brandSelect.value;
+  const selectedBrand = brandInput.value.trim();
   const models = state.modelData.metadata.brand_model_map[selectedBrand] || [];
-  fillSelect(modelSelect, models, "Selecciona un modelo");
-  modelSelect.disabled = models.length === 0;
+  fillDatalist(modelSuggestions, models);
 }
 
 function readSelectedExtras() {
@@ -99,8 +106,8 @@ function renderInlineWarnings() {
 
 function buildPayload() {
   return {
-    brand: brandSelect.value,
-    model: modelSelect.value,
+    brand: brandInput.value.trim(),
+    model: modelInput.value.trim(),
     age: Number(ageSelect.value),
     mileage_mid: Number(mileageInput.value),
     fiscal_power_num: Number(fiscalPowerSelect.value),
@@ -295,12 +302,9 @@ function renderResults(prediction) {
 }
 
 async function loadModelData() {
-  const response = await fetch(MODEL_DATA_URL);
-  if (!response.ok) {
-    throw new Error("No se pudieron cargar los datos del modelo.");
+  if (!state.modelData) {
+    throw new Error("No se pudieron cargar los datos del modelo embebido.");
   }
-
-  state.modelData = await response.json();
 
   populateBrandModelMap();
   fillSelect(
@@ -416,7 +420,7 @@ function downloadPdf() {
   pdf.save(`souqauto-${p.brand}-${p.model}.pdf`.replace(/\s+/g, "-").toLowerCase());
 }
 
-brandSelect.addEventListener("change", updateModelsForBrand);
+brandInput.addEventListener("input", updateModelsForBrand);
 mileageInput.addEventListener("input", renderInlineWarnings);
 form.addEventListener("submit", (event) => {
   try {
