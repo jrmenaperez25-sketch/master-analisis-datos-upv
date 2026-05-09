@@ -1,0 +1,8 @@
+URL principal:
+https://jrmenaperez25-sketch.github.io/proyectos-portfolio/
+
+URL corta interna:
+https://jrmenaperez25-sketch.github.io/proyectos-portfolio/souqauto-maroc/
+
+Carpeta local:
+C:\Proyectos Portfolio\master\Minería de Datos\miniweb-marocars\web

@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 480" role="img" aria-label="Coche en Marruecos">
+  <defs>
+    <linearGradient id="sky" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0%" stop-color="#f8d8a8"/>
+      <stop offset="100%" stop-color="#f6b971"/>
+    </linearGradient>
+    <linearGradient id="sand" x1="0" x2="1" y1="0" y2="0">
+      <stop offset="0%" stop-color="#ebc78a"/>
+      <stop offset="100%" stop-color="#d99e54"/>
+    </linearGradient>
+    <linearGradient id="car" x1="0" x2="1" y1="0" y2="0">
+      <stop offset="0%" stop-color="#bb3e03"/>
+      <stop offset="100%" stop-color="#ee9b00"/>
+    </linearGradient>
+  </defs>
+  <rect width="720" height="480" rx="36" fill="url(#sky)"/>
+  <circle cx="578" cy="90" r="46" fill="#fff2d9" opacity="0.92"/>
+  <path d="M0 315c92-18 150-35 226-24 70 11 115 40 189 37 83-3 145-39 305-15v167H0z" fill="url(#sand)"/>
+  <path d="M82 297c39-76 110-134 193-148 87-14 173 16 230 83 22 26 38 54 48 84H82z" fill="#be6b35" opacity="0.24"/>
+  <path d="M190 250h182c40 0 73 17 98 49l28 35h34c28 0 51 22 51 50v9c0 12-10 22-22 22h-19c-2-40-33-71-73-71-39 0-71 31-73 71H273c-3-40-35-71-74-71-40 0-72 31-74 71h-24c-13 0-23-10-23-23v-19c0-33 22-57 55-59l30-2 27-36c25-33 64-51 100-51z" fill="url(#car)"/>
+  <path d="M239 262h129c30 0 54 11 75 35l27 31H193l21-31c9-13 18-22 25-27 8-5 21-8 39-8z" fill="#ffd8a8"/>
+  <path d="M271 271h88c12 0 22 4 32 12l27 32H250l21-31c4-5 7-8 11-10 4-2 10-3 18-3z" fill="#86b8d6"/>
+  <path d="M433 283c18 11 30 26 42 45h-38l-28-45z" fill="#86b8d6"/>
+  <circle cx="203" cy="415" r="42" fill="#1f2937"/>
+  <circle cx="203" cy="415" r="19" fill="#d1d5db"/>
+  <circle cx="468" cy="415" r="42" fill="#1f2937"/>
+  <circle cx="468" cy="415" r="19" fill="#d1d5db"/>
+  <rect x="527" y="356" width="25" height="13" rx="6" fill="#fff0dc"/>
+  <rect x="146" y="356" width="24" height="13" rx="6" fill="#5b1f06"/>
+  <path d="M554 174c22 5 38 20 46 39-16-5-32-1-44 10-14 11-21 27-20 43-19-10-31-31-30-53 1-26 22-44 48-39z" fill="#b22222" opacity="0.9"/>
+  <polygon points="559,143 566,165 589,165 570,178 577,201 559,187 540,201 547,178 529,165 552,165" fill="#0f6b45"/>
+</svg>
