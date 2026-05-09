@@ -10,19 +10,21 @@ def path_relinking(initial_sol, final_sol):
     intermediate_solutions = []
 
     while len(to_add) > 0 and len(to_remove) > 0:
-        aux=0
+        best_distance = -1
+        best_node_to_add = None
+        best_node_to_remove = None
         for add_node in to_add:
             for remove_node in to_remove:
                 d=solution.distanceToSol(current_sol, add_node, without = remove_node)
-                if aux==0 or aux<=d:
-                    aux=d
-                    quitacion = remove_node
-                    ponecion = add_node
-        solution.removeFromSolution(current_sol,quitacion)
-        solution.addToSolution(current_sol,ponecion)
-        intermediate_solutions.append(current_sol) #soluciones de cada paso del PathRelinking
-        to_add = final_sol['sol']-current_sol['sol'] #actualización de los nodos restantes a añadir y eliminar
-        to_remove = current_sol['sol']-final_sol['sol']
+                if best_distance == -1 or best_distance <= d:
+                    best_distance = d
+                    best_node_to_remove = remove_node
+                    best_node_to_add = add_node
+        solution.removeFromSolution(current_sol, best_node_to_remove)
+        solution.addToSolution(current_sol, best_node_to_add)
+        intermediate_solutions.append(current_sol.copy()) # Guardamos una copia, no una referencia
+        to_add.remove(best_node_to_add) # actualización en O(1) de nodos restantes a añadir
+        to_remove.remove(best_node_to_remove) # actualización en O(1) de nodos a eliminar
     best_intermediate = max(intermediate_solutions, key=lambda sol: sol['of']) #mejor solución intermedia, a la que aplicaremos LocalSearch
 
     lsbestimp.improve(best_intermediate)

@@ -1,5 +1,5 @@
 
-def readInstance(path):
+def read_instance(path):
     instance = {}
     with open(path, "r") as f:
         # First line in file has two numbers: n p

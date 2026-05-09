@@ -19,7 +19,7 @@ def executeInstance(instances, num_executions, output_file):
                 # Ruta completa al fichero de instancia
                 full_path = os.path.join(base_dir, path)
 
-                inst = instance.readInstance(full_path)
+                inst = instance.read_instance(full_path)
                 sol = grasp.execute(inst, 1, 0.75)
 
                 # Escribimos solo el valor de la función objetivo
@@ -51,4 +51,3 @@ if __name__ == '__main__':
     num_executions = 3
     output_file = "resultadosGRASP.txt"
     executeInstance(instances, num_executions, output_file)
-

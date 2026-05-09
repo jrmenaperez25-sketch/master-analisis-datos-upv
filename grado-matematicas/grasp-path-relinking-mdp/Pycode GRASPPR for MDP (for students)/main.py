@@ -1,11 +1,11 @@
 import os
 from structure import instance
 from algorithms import GraspPL
-from pathfunctions import cosas
+from pathfunctions import elite_relinking
 from pathfunctions import elite
 
 
-def executeinstance(instances, num_executions, output_file):
+def execute_instances(instances, num_executions, output_file):
     # Carpeta donde está este main.py
     base_dir = os.path.dirname(__file__)
 
@@ -21,11 +21,11 @@ def executeinstance(instances, num_executions, output_file):
                 # Ruta completa al fichero de instancia
                 full_path = os.path.join(base_dir, path)
 
-                inst = instance.readInstance(full_path)
+                inst = instance.read_instance(full_path)
 
                 all_solutions = GraspPL.execute(inst, 10, 0.75)
                 eliteset = elite.select_elite_set(all_solutions, 100, 0.5)
-                best_of_best = cosas.elite_path_relinking(eliteset, 40)
+                best_of_best = elite_relinking.elite_path_relinking(eliteset, 40)
 
                 file.write(f"{round(best_of_best['of'], 2)} ")
 
@@ -52,4 +52,4 @@ if __name__ == '__main__':
     ]
     num_executions = 3
     output_file = "resultadosGRASPPR.txt"
-    executeinstance(instances, num_executions, output_file)
+    execute_instances(instances, num_executions, output_file)
